@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#101216">
+<title>FundSprout — Know Your Flow. Watch It Grow.</title>
+<meta name="description" content="FundSprout is an offline student finance app to track allowances, expenses, and savings goals that grow a virtual garden." />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Bootstrap 5.3 (layout/grid utilities only — all components are custom-themed) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<!-- App styles -->
+<link rel="stylesheet" href="assets/css/style.css">
+
+<!-- Favicon (inline leaf mark) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230F1115'/%3E%3Cpath d='M32 50 C20 46 14 36 16 22 C30 20 40 26 42 38 C43 44 38 49 32 50 Z' fill='%2322C55E'/%3E%3Cpath d='M32 50 C32 40 30 28 20 20' stroke='%2316A34A' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body data-theme="dark">
+
+<div class="app-shell">
+
+  <!-- ============== SIDEBAR (desktop) ============== -->
+  <aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <img src="assets/img/FundSproutLogo.png" alt="FundSprout Logo" class="brand-mark">
+      <div class="brand-text">
+        <span class="brand-name">FundSprout</span>
+        <span class="brand-tagline"><br>Know Your Flow</br> Watch It Grow</span>
+      </div>
+      <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar"><i class="fa-solid fa-angles-left"></i></button>
+    </div>
+
+    <ul class="nav-list">
+      <li class="nav-item active" data-page="dashboard"><i class="fa-solid fa-house"></i><span>Home</span></li>
+      <li class="nav-item" data-page="allowance"><i class="fa-solid fa-sack-dollar"></i><span>Allowance</span></li>
+      <li class="nav-item" data-page="expenses"><i class="fa-solid fa-receipt"></i><span>Expenses</span></li>
+      <li class="nav-item" data-page="garden"><i class="fa-solid fa-seedling"></i><span>My Garden</span></li>
+      <li class="nav-item" data-page="analytics"><i class="fa-solid fa-chart-line"></i><span>Analytics</span></li>
+      <li class="nav-item" data-page="activity"><i class="fa-solid fa-clock-rotate-left"></i><span>Activity Log</span></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="nav-item" data-page="settings"><i class="fa-solid fa-gear"></i><span>Settings</span></div>
+    </div>
+  </aside>
+
+  <!-- ============== MAIN COLUMN ============== -->
+  <div class="main-col">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="icon-btn mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-heading">
+        <div class="topbar-title" id="topbarTitle">Home</div>
+        <div class="topbar-sub" id="topbarSub"></div>
+      </div>
+      <div class="topbar-spacer"></div>
+      <button class="icon-btn" id="quickAddBtn" aria-label="Quick add"><i class="fa-solid fa-plus"></i></button>
+      <button class="icon-btn" id="themeToggleBtn" aria-label="Toggle theme"><i class="fa-solid fa-moon" id="themeToggleIcon"></i></button>
+    </header>
+
+    <!-- Page container -->
+    <main class="page-container">
+
+      <!-- ======================= DASHBOARD ======================= -->
+      <section class="page active" id="page-dashboard">
+        <div class="dashboard-section-heading">
+          <div>
+            <span class="section-eyebrow">TODAY'S SNAPSHOT</span>
+            <span class="dashboard-section-sub">Your money at a glance</span>
+          </div>
+        </div>
+        <div class="grid grid-4 dashboard-overview mb-3">
+          <div class="card summary-card summary-card-primary">
+            <div class="summary-card-top">
+              <div class="icon-badge badge-green"><i class="fa-solid fa-wallet"></i></div>
+              <span class="summary-live-badge"><i class="fa-solid fa-circle"></i> Live</span>
+            </div>
+            <span class="label">Cash on Hand</span>
+            <span class="value count-up" id="cardBalance">₱0.00</span>
+            <span class="text-tertiary text-sm">After recorded allowances and expenses</span>
+            <span class="text-tertiary text-sm" id="cardBudgetTarget">No budget tracker set</span>
+            <button class="btn btn-ghost btn-sm" id="setTotalBudgetBtn" type="button" style="margin-top:8px;">Set Budget/Cash</button>
+          </div>
+          <div class="card summary-card">
+            <div class="icon-badge badge-blue"><i class="fa-solid fa-sack-dollar"></i></div>
+            <span class="label">Today's Allowance</span>
+            <span class="value count-up" id="cardTodayAllowance">₱0.00</span>
+            <span class="text-tertiary text-sm" id="cardTodayDate">Philippine time</span>
+          </div>
+          <div class="card summary-card">
+            <div class="icon-badge badge-red"><i class="fa-solid fa-receipt"></i></div>
+            <span class="label">Today's Expenses</span>
+            <span class="value count-up" id="cardTodayExpenses">₱0.00</span>
+          </div>
+          <div class="card summary-card">
+            <div class="icon-badge badge-yellow"><i class="fa-solid fa-piggy-bank"></i></div>
+            <span class="label">Money Saved</span>
+            <span class="value count-up" id="cardMoneySaved">₱0.00</span>
+            <div class="mini-progress-track"><div class="mini-progress-fill" id="cardSavingsProgressFill" style="width:0%"></div></div>
+            <span class="text-tertiary text-sm" id="cardSavingsProgress">Create a garden goal to track savings</span>
+          </div>
+        </div>
+
+        <div class="grid grid-2-1 dashboard-lower-grid">
+          <div class="flex-col gap-3 dashboard-left-stack">
+            <div class="card budget-status-card">
+              <div class="section-title">
+                <div>
+                  <span>Budget Remaining Today</span>
+                  <span class="card-kicker">Allowance minus spending</span>
+                </div>
+                <i class="fa-solid fa-scale-balanced text-tertiary"></i>
+              </div>
+              <div class="budget-status-value-row">
+                <div class="value count-up" id="cardBudgetRemaining" style="font-size:28px;font-weight:700;">₱0.00</div>
+                <span class="budget-status-pct" id="cardBudgetRemainingPct">0% left</span>
+              </div>
+              <div class="budget-progress-track" aria-hidden="true"><div class="budget-progress-fill" id="cardBudgetProgressFill" style="width:0%"></div></div>
+              <p class="text-secondary text-sm mt-1" id="cardBudgetRemainingHint">Today's allowance minus today's expenses.</p>
+            </div>
+            <div class="card dashboard-recent-card">
+              <div class="section-title">
+                <span>Recent Transactions</span>
+                <a href="#" class="text-sm" style="color:var(--primary);font-weight:600;" onclick="App.goTo('activity');return false;">View all</a>
+              </div>
+              <div id="recentTxList"></div>
+            </div>
+          </div>
+
+          <div class="card life-tree-dashboard-card">
+            <div class="section-title">
+              <div>
+                <span>Life Tree</span>
+                <span class="card-kicker">Your financial health</span>
+              </div>
+              <a href="#" class="text-sm" style="color:var(--primary);font-weight:600;" onclick="App.goTo('garden');return false;">View garden</a>
+            </div>
+            <div class="tree-wrap">
+              <div id="lifeTreeSvgWrap"></div>
+              <div class="tree-status">
+                <div class="stage-name" id="lifeTreeStageName">Seed</div>
+                <div class="stage-desc" id="lifeTreeStageDesc"></div>
+              </div>
+              <div class="tree-progress-track"><div class="tree-progress-fill" id="lifeTreeProgressFill" style="width:0%"></div></div>
+              <div class="text-tertiary text-sm mt-1" id="lifeTreeHealthPct">0% financial health</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================= ALLOWANCE ======================= -->
+      <section class="page" id="page-allowance">
+        <div class="grid grid-3 mb-3">
+          <div class="card summary-card">
+            <div class="icon-badge badge-blue"><i class="fa-solid fa-calendar-check"></i></div>
+            <span class="label">This Month</span>
+            <span class="value" id="allowanceTotalThisMonth">₱0.00</span>
+          </div>
+          <div class="card summary-card" style="grid-column: span 2;">
+            <div class="flex items-center justify-between w-full" style="height:100%;">
+              <div>
+                <span class="label">Records</span>
+                <div class="value" id="allowanceCount" style="font-size:18px;">0 records</div>
+              </div>
+              <button class="btn btn-primary" id="addAllowanceBtn"><i class="fa-solid fa-plus"></i> Add Allowance</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="filter-bar">
+            <div class="search-bar">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" class="form-control" id="allowanceSearchInput" placeholder="Search by source or notes…" />
+              <button class="clear-btn" aria-label="Clear search"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="dropdown" id="allowanceSortDD" data-dropdown></div>
+          </div>
+          <div id="allowanceListWrap"></div>
+        </div>
+      </section>
+
+      <!-- ======================= EXPENSES ======================= -->
+      <section class="page" id="page-expenses">
+        <div class="grid grid-3 mb-3">
+          <div class="card summary-card">
+            <div class="icon-badge badge-red"><i class="fa-solid fa-calendar-check"></i></div>
+            <span class="label">This Month</span>
+            <span class="value" id="expenseTotalThisMonth">₱0.00</span>
+          </div>
+          <div class="card summary-card" style="grid-column: span 2;">
+            <div class="flex items-center justify-between w-full" style="height:100%;">
+              <div>
+                <span class="label">Records</span>
+                <div class="value" id="expenseCount" style="font-size:18px;">0 records</div>
+              </div>
+              <button class="btn btn-primary" id="addExpenseBtn"><i class="fa-solid fa-plus"></i> Add Expense</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="filter-bar">
+            <div class="search-bar">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" class="form-control" id="expenseSearchInput" placeholder="Search by name or notes…" />
+              <button class="clear-btn" aria-label="Clear search"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="dropdown" id="expenseFilterDD" data-dropdown></div>
+            <div class="dropdown" id="expenseSortDD" data-dropdown></div>
+          </div>
+          <div id="expenseListWrap"></div>
+        </div>
+      </section>
+
+      <!-- ======================= GARDEN ======================= -->
+      <section class="page" id="page-garden">
+        <div class="section-title">
+          <span>My Garden</span>
+          <button class="btn btn-primary btn-sm" id="addPlantBtn"><i class="fa-solid fa-seedling"></i> Plant Something</button>
+        </div>
+        <div class="garden-grid" id="gardenGrid"></div>
+      </section>
+
+      <!-- ======================= ANALYTICS ======================= -->
+      <section class="page" id="page-analytics">
+        <div class="flex items-center justify-between mb-3" style="flex-wrap:wrap;gap:12px;">
+          <div class="pill-tabs">
+            <div class="pill-tab" data-range="daily">Daily</div>
+            <div class="pill-tab active" data-range="weekly">Weekly</div>
+            <div class="pill-tab" data-range="monthly">Monthly</div>
+            <div class="pill-tab" data-range="yearly">Yearly</div>
+          </div>
+        </div>
+
+        <div class="grid grid-4 mb-3">
+          <div class="card summary-card"><span class="label">Total Allowance</span><span class="value" id="statTotalAllowance" style="font-size:19px;">₱0.00</span></div>
+          <div class="card summary-card"><span class="label">Total Expenses</span><span class="value" id="statTotalExpense" style="font-size:19px;">₱0.00</span></div>
+          <div class="card summary-card"><span class="label">Current Balance</span><span class="value" id="statBalance" style="font-size:19px;">₱0.00</span></div>
+          <div class="card summary-card"><span class="label">Money Saved</span><span class="value" id="statSaved" style="font-size:19px;">₱0.00</span></div>
+        </div>
+        <div class="grid grid-4 mb-3">
+          <div class="card summary-card"><span class="label">Highest Expense</span><span class="value" id="statHighestExpense" style="font-size:19px;">₱0.00</span></div>
+          <div class="card summary-card"><span class="label">Top Category</span><span class="value" id="statTopCategory" style="font-size:19px;">—</span></div>
+          <div class="card summary-card"><span class="label">Avg. Daily Spending</span><span class="value" id="statAvgDaily" style="font-size:19px;">₱0.00</span></div>
+          <div class="card summary-card"><span class="label">Total Transactions</span><span class="value" id="statTotalTx" style="font-size:19px;">0</span></div>
+        </div>
+
+        <div class="grid grid-2-1">
+          <div class="card chart-card">
+            <div class="section-title"><span>Allowance vs. Expense Trend</span></div>
+            <canvas id="trendChart" height="280"></canvas>
+          </div>
+          <div class="card chart-card">
+            <div class="section-title"><span>Expense Distribution</span></div>
+            <canvas id="distributionChart" height="280"></canvas>
+            <div class="chart-legend-row" id="distributionLegend"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================= ACTIVITY LOG ======================= -->
+      <section class="page" id="page-activity">
+        <div class="card">
+          <div class="section-title">
+            <span>All Activity</span>
+            <span class="text-tertiary text-sm" id="activityCount">0 items</span>
+          </div>
+          <div class="filter-bar">
+            <div class="search-bar">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" class="form-control" id="activitySearchInput" placeholder="Search activity…" />
+              <button class="clear-btn" aria-label="Clear search"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="dropdown" id="activityFilterDD" data-dropdown></div>
+            <div class="dropdown" id="activitySortDD" data-dropdown></div>
+          </div>
+          <div id="activityListWrap"></div>
+        </div>
+      </section>
+
+      <!-- ======================= SETTINGS ======================= -->
+      <section class="page" id="page-settings">
+        <div class="grid grid-2">
+          <div class="flex-col gap-3">
+            <div class="card">
+              <div class="section-title"><span>Appearance</span></div>
+              <div class="settings-row">
+                <div class="settings-row-text"><strong>Dark Mode</strong><span>Use FundSprout's dark theme</span></div>
+                <label class="switch"><input type="checkbox" id="darkModeSwitch"><span class="slider"></span></label>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-text"><strong>Animations</strong><span>Growth, counters, and transitions</span></div>
+                <label class="switch"><input type="checkbox" id="animationsSwitch"><span class="slider"></span></label>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title"><span>Cloud Sync</span></div>
+              <div class="settings-row">
+                <div class="settings-row-text"><strong>Status</strong><span id="syncSettingsStatus">Not configured</span></div>
+              </div>
+              <div class="form-group mt-2">
+                <label class="form-label" for="syncUrlInput">Google Apps Script Web App URL</label>
+                <input type="url" class="form-control" id="syncUrlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec" />
+              </div>
+              <div class="flex-col gap-2 mt-2">
+                <button class="btn btn-secondary btn-block" id="saveSyncUrlBtn"><i class="fa-solid fa-plug"></i> Save &amp; Connect</button>
+                <button class="btn btn-ghost btn-block" id="syncNowBtn"><i class="fa-solid fa-rotate"></i> Sync Now</button>
+              </div>
+              <p class="text-secondary text-sm mt-2">
+                FundSprout always saves to this device first. When this is set up and you're online, changes
+                sync to your Google Sheet automatically in the background — you don't need to press Sync Now.
+              </p>
+            </div>
+
+            <div class="card device-sync-card">
+              <div class="section-title"><span>Device Sync</span><i class="fa-solid fa-mobile-screen-button"></i></div>
+              <div class="settings-row">
+                <div class="settings-row-text"><strong id="deviceSyncStatusTitle">Not paired</strong><span id="deviceSyncStatusText">Pair this device with your phone or another FundSprout device to share the same data.</span></div>
+              </div>
+              <div class="device-sync-code-wrap" id="deviceSyncCodeWrap" hidden>
+                <div class="device-sync-code-label">Your pairing code</div>
+                <div class="device-sync-code" id="deviceSyncCode">--------</div>
+                <div class="text-secondary text-sm" id="deviceSyncCodeExpiry">Expires in 10 minutes</div>
+              </div>
+              <div class="form-group mt-2">
+                <label class="form-label" for="deviceSyncCodeInput">Pair another device</label>
+                <input type="text" class="form-control device-sync-input" id="deviceSyncCodeInput" inputmode="text" maxlength="8" autocomplete="off" placeholder="Enter 8-character code" />
+              </div>
+              <div class="flex-col gap-2 mt-2">
+                <button class="btn btn-secondary btn-block" id="generateDeviceCodeBtn"><i class="fa-solid fa-key"></i> Generate Pairing Code</button>
+                <button class="btn btn-primary btn-block" id="claimDeviceCodeBtn"><i class="fa-solid fa-link"></i> Connect This Device</button>
+                <button class="btn btn-ghost btn-block" id="refreshDeviceSyncBtn"><i class="fa-solid fa-arrows-rotate"></i> Refresh Shared Data</button>
+                <button class="btn btn-danger btn-block" id="unpairDeviceBtn" hidden><i class="fa-solid fa-link-slash"></i> Unpair Device</button>
+              </div>
+              <p class="text-secondary text-sm mt-2">
+                Use this after Cloud Sync is connected. Generate a code on the device that already has your data, then enter that code here on the new device. Both devices will use the same cloud dataset while keeping their own responsive interface and local offline copy.
+              </p>
+            </div>
+
+            <div class="card">
+              <div class="section-title"><span>Data</span></div>
+              <div class="settings-row">
+                <div class="settings-row-text"><strong>Records stored</strong><span id="settingsRecordCount">0 transactions</span></div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row-text"><strong>Backup status</strong><span id="lastBackupStatus">No backup exported yet</span></div>
+              </div>
+              <div class="flex-col gap-2 mt-2">
+                <button class="btn btn-secondary btn-block" id="exportBackupBtn"><i class="fa-solid fa-file-export"></i> Export Backup</button>
+                <label class="btn btn-secondary btn-block" for="importBackupInput" style="cursor:pointer;">
+                  <i class="fa-solid fa-file-import"></i> Import Backup
+                </label>
+                <input type="file" id="importBackupInput" accept="application/json" style="display:none;" />
+                <button class="btn btn-danger btn-block" id="resetDataBtn"><i class="fa-solid fa-triangle-exclamation"></i> Reset All Data</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-title"><span>About FundSprout</span></div>
+            <p class="text-secondary text-sm mt-1">
+              FundSprout is a local-first student finance companion. Your data is stored in this browser's
+              local storage by default. If Cloud Sync is configured, your data can also be synchronized with your
+              Google Sheet — there are still no accounts or sign-ins.
+            </p>
+            <p class="text-secondary text-sm mt-2">
+              <strong style="color:var(--text);">On overspending:</strong> FundSprout allows a purchase to bring your
+              balance below zero, but will always ask you to confirm first. This mirrors real-world spending and keeps
+              the app flexible if you log an expense before its matching allowance.
+            </p>
+            <p class="text-secondary text-sm mt-2">
+              <strong style="color:var(--text);">Version:</strong> 1.1 · Built with HTML, CSS, Bootstrap 5.3,
+              vanilla JavaScript, and Chart.js. No backend, no build tools, no tracking.
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============== BOTTOM NAV (mobile) ============== -->
+<nav class="bottom-nav">
+  <ul class="bottom-nav-list">
+    <li class="bottom-nav-item active" data-page="dashboard"><i class="fa-solid fa-house"></i>Home</li>
+    <li class="bottom-nav-item" data-page="allowance"><i class="fa-solid fa-sack-dollar"></i>Allowance</li>
+    <li class="bottom-nav-item" data-page="garden"><i class="fa-solid fa-seedling"></i>Garden</li>
+    <li class="bottom-nav-item" data-page="expenses"><i class="fa-solid fa-receipt"></i>Expenses</li>
+    <li class="bottom-nav-item" data-page="analytics"><i class="fa-solid fa-chart-line"></i>Analytics</li>
+  </ul>
+</nav>
+
+<!-- FAB (mobile quick add) -->
+<button class="fab" id="mainFab" aria-label="Quick add"><i class="fa-solid fa-plus"></i></button>
+
+<!-- Toast stack -->
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- ============================================================
+     MODALS
+     ============================================================ -->
+
+<!-- Mobile nav fs-modal (More menu) -->
+<div class="fs-modal-backdrop" id="mobileNavModal" aria-hidden="true">
+  <div class="fs-modal">
+    <div class="fs-modal-header"><span class="fs-modal-title">Menu</span><button class="fs-modal-close" data-fs-modal-close><i class="fa-solid fa-xmark"></i></button></div>
+    <ul class="nav-list">
+      <li class="nav-item" data-page="dashboard"><i class="fa-solid fa-house"></i><span>Home</span></li>
+      <li class="nav-item" data-page="allowance"><i class="fa-solid fa-sack-dollar"></i><span>Allowance</span></li>
+      <li class="nav-item" data-page="expenses"><i class="fa-solid fa-receipt"></i><span>Expenses</span></li>
+      <li class="nav-item" data-page="garden"><i class="fa-solid fa-seedling"></i><span>My Garden</span></li>
+      <li class="nav-item" data-page="analytics"><i class="fa-solid fa-chart-line"></i><span>Analytics</span></li>
+      <li class="nav-item" data-page="activity"><i class="fa-solid fa-clock-rotate-left"></i><span>Activity Log</span></li>
+      <li class="nav-item" data-page="settings"><i class="fa-solid fa-gear"></i><span>Settings</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Quick add fs-modal -->
+<div class="fs-modal-backdrop" id="quickAddModal" aria-hidden="true">
+  <div class="fs-modal">
+    <div class="fs-modal-header"><span class="fs-modal-title">Quick Add</span><button class="fs-modal-close" data-fs-modal-close><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="flex-col gap-2">
+      <button class="btn btn-secondary btn-block" data-quick-action="budget" style="justify-content:flex-start;"><i class="fa-solid fa-wallet" style="color:var(--primary);"></i> Set Budget/Cash</button>
+      <button class="btn btn-secondary btn-block" data-quick-action="allowance" style="justify-content:flex-start;"><i class="fa-solid fa-sack-dollar" style="color:var(--allowance-blue);"></i> Add Allowance</button>
+      <button class="btn btn-secondary btn-block" data-quick-action="expense" style="justify-content:flex-start;"><i class="fa-solid fa-receipt" style="color:var(--expense-red);"></i> Add Expense</button>
+      <button class="btn btn-secondary btn-block" data-quick-action="plant" style="justify-content:flex-start;"><i class="fa-solid fa-seedling" style="color:var(--primary);"></i> Plant Something</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Total Budget modal -->
+<div class="fs-modal-backdrop" id="totalBudgetModal" aria-hidden="true">
+  <div class="fs-modal">
+    <div class="fs-modal-header"><span class="fs-modal-title">Set Budget/Cash</span><button class="fs-modal-close" data-fs-modal-close><i class="fa-solid fa-xmark"></i></button></div>
+    <form id="totalBudgetForm" novalidate>
+      <p class="text-secondary text-sm mb-2">Enter the cash you currently have on hand. Future allowances will increase it, and expenses will decrease it automatically.</p>
+      <div class="form-group">
+        <label class="form-label">Starting Cash / Cash on Hand<span class="req">*</span></label>
+        <div class="input-group"><span class="input-prefix">₱</span><input type="number" step="0.01" min="0.01" class="form-control has-prefix" id="totalBudgetAmount" placeholder="1000.00" /></div>
+        <div class="field-error" id="totalBudgetAmountError"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>
+      </div>
+      <div class="fs-modal-footer"><button type="button" class="btn btn-ghost" data-fs-modal-close>Cancel</button><button type="submit" class="btn btn-primary">Save Cash Balance</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- Allowance fs-modal -->
+<div class="fs-modal-backdrop" id="allowanceModal" aria-hidden="true">
+  <div class="fs-modal">
+    <div class="fs-modal-header"><span class="fs-modal-title" id="allowanceModalTitle">Add Allowance</span><button class="fs-modal-close" data-fs-modal-close><i class="fa-solid fa-xmark"></i></button></div>
+    <form id="allowanceForm" novalidate>
+      <div class="form-group">
+        <label class="form-label">Amount<span class="req">*</span></label>
+        <div class="input-group">
+          <span class="input-prefix">₱</span>
+          <input type="number" step="0.01" min="0.01" class="form-control has-prefix" id="allowanceAmount" placeholder="0.00" />
+        </div>
+        <div class="field-error" id="allowanceAmountError"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Source<span class="req">*</span></label>
+        <div class="dropdown" id="allowanceSourceDD" data-dropdown></div>
+        <div class="field-error" id="allowanceSourceError"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>
+      </div>
+      <div class="grid grid-2">
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" class="form-control" id="allowanceDate" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Time</label>
+          <input type="time" class="form-control" id="allowanceTime" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" id="allowanceNotes" placeholder="Optional notes…"></textarea>
+      </div>
+      <div class="form-group">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <div>
+            <label class="form-label" for="allowancePlannedSwitch" style="margin-bottom:2px;">Track only</label>
+            <div class="text-tertiary text-sm">Just set what you plan to receive — won't add to your balance.</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="allowancePlannedSwitch"><span class="slider"></span></label>
+        </div>
+      </div>
+      <div class="fs-modal-footer">
+        <button type="button" class="btn btn-ghost" data-fs-modal-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Allowance</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Expense fs-modal -->
+<div class="fs-modal-backdrop" id="expenseModal" aria-hidden="true">
+  <div class="fs-modal">
+    <div class="fs-modal-header"><span class="fs-modal-title" id="expenseModalTitle">Add Expense</span><button class="fs-modal-close" data-fs-modal-close><i class="fa-solid fa-xmark"></i></button></div>
+    <form id="expenseForm" novalidate>
+      <div class="form-group">
+        <label class="form-label">Expense Name<span class="req">*</span></label>
+        <input type="text" class="form-control" id="expenseName" placeholder="e.g. Jeepney fare" />
+        <div class="field-error" id="expenseNameError"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>
+      </div>
+      <div class="grid grid-2">
+        <div class="form-group">
+          <label class="form-label">Amount<span class="req">*</span></label>
+          <div class="input-group">
+            <span class="input-prefix">₱</span>
+            <input type="number" step="0.01" min="0.01" class="form-control has-prefix" id="expenseAmount" placeholder="0.00" />
+          </div>
+          <div class="field-error" id="expenseAmountError"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category<span class="req">*</span></label>
+          <div class="dropdown" id="expenseCategoryDD" data-dropdown></div>
+          <div class="field-error" id="expenseCategoryError"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>
+        </div>
+      </div>
+      <div class="grid grid-2">
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" class="form-control" id="expenseDate" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Time</label>
+          <input type="time" class="form-control" id="expenseTime" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" id="expenseNotes" placeholder="Optional notes…"></textarea>
+      </div>
+      <div class="fs-modal-footer">
+        <button type="button" class="btn btn-ghost" data-fs-modal-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Expense</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Plant creation fs-modal -->
+<div class="fs-modal-backdrop" id="plantModal" aria-hidden="true">
+  <div class="fs-modal">
+    <div class="fs-modal-header"><span class="fs-modal-title">Plant Something New</span><button class="fs-modal-close" data-fs-modal-close><i class="fa-solid fa-xmark"></i></button></div>
+    <form id="plantForm" novalidate>
+      <div class="form-group">
+        <label class="form-label">Plant Name<span class="req">*</span></label>
+        <input type="text" class="form-control" id="plantName" placeholder="e.g. New Laptop Fund" />
+        <div class="field-error" id="plantNameError"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Plant Type</label>
+        <div class="dropdown" id="plantTypeDD" data-dropdown></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Target Amount<span class="req">*</span></label>
+        <div class="input-group">
+          <span class="input-prefix">₱</span>
+          <input type="number" step="0.01" min="0.01" class="form-control has-prefix" id="plantTarget" placeholder="0.00" />
+        </div>
+        <div class="field-error" id="plantTargetError"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Goal Description</label>
+        <textarea class="form-control" id="plantGoal" placeholder="What are you saving for?"></textarea>
+      </div>
+      <div class="fs-modal-footer">
+        <button type="button" class="btn btn-ghost" data-fs-modal-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Plant It</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Plant detail fs-modal -->
+<div class="fs-modal-backdrop" id="plantDetailModal" aria-hidden="true">
+  <div class="fs-modal fs-modal-wide">
+    <div class="fs-modal-header"><span class="fs-modal-title" id="plantDetailTitle">Plant</span><button class="fs-modal-close" data-fs-modal-close><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="grid grid-2">
+      <div class="tree-wrap">
+        <div id="plantDetailSvgWrap"></div>
+        <div class="tree-status">
+          <div class="stage-name" id="plantDetailStageName"></div>
+          <div class="stage-desc" id="plantDetailStageDesc"></div>
+        </div>
+        <div class="tree-progress-track"><div class="tree-progress-fill" id="plantDetailProgressFill" style="width:0%"></div></div>
+        <div class="text-tertiary text-sm mt-1" id="plantDetailStats"></div>
+      </div>
+      <div class="flex-col gap-2">
+        <div>
+          <span class="form-label" style="margin-bottom:4px;">Type</span>
+          <div id="plantDetailType" class="text-sm"></div>
+        </div>
+        <div>
+          <span class="form-label" style="margin-bottom:4px;">Goal</span>
+          <p class="text-secondary text-sm" id="plantDetailGoalText"></p>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-primary btn-block" id="plantDetailWaterBtn"><i class="fa-solid fa-droplet"></i> Water Plant</button>
+          <button class="btn btn-danger btn-icon-only" id="plantDetailDeleteBtn" aria-label="Delete plant"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <div class="section-title"><span>Watering History</span></div>
+      <div class="search-bar mb-2">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" class="form-control" id="historySearchInput" placeholder="Search history notes…" />
+      </div>
+      <div id="waterHistoryList" style="max-height:260px;overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Water fs-modal -->
+<div class="fs-modal-backdrop" id="waterModal" aria-hidden="true">
+  <div class="fs-modal">
+    <div class="fs-modal-header"><span class="fs-modal-title">Water "<span id="waterModalPlantName"></span>"</span><button class="fs-modal-close" data-fs-modal-close><i class="fa-solid fa-xmark"></i></button></div>
+    <form id="waterForm" novalidate>
+      <p class="text-secondary text-sm mb-2">Available balance: <strong id="waterAvailableBalance" style="color:var(--text);"></strong></p>
+      <div class="form-group">
+        <label class="form-label">Amount to Water<span class="req">*</span></label>
+        <div class="input-group">
+          <span class="input-prefix">₱</span>
+          <input type="number" step="0.01" min="0.01" class="form-control has-prefix" id="waterAmount" placeholder="0.00" />
+        </div>
+        <div class="field-error" id="waterAmountError"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" id="waterNotes" placeholder="Optional notes…"></textarea>
+      </div>
+      <div class="fs-modal-footer">
+        <button type="button" class="btn btn-ghost" data-fs-modal-close>Cancel</button>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-droplet"></i> Water</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Water edit fs-modal -->
+<div class="fs-modal-backdrop" id="waterEditModal" aria-hidden="true">
+  <div class="fs-modal">
+    <div class="fs-modal-header"><span class="fs-modal-title">Edit Watering Record</span><button class="fs-modal-close" data-fs-modal-close><i class="fa-solid fa-xmark"></i></button></div>
+    <form id="waterEditForm" novalidate>
+      <div class="form-group">
+        <label class="form-label">Amount<span class="req">*</span></label>
+        <div class="input-group">
+          <span class="input-prefix">₱</span>
+          <input type="number" step="0.01" min="0.01" class="form-control has-prefix" id="waterEditAmount" placeholder="0.00" />
+        </div>
+        <div class="field-error" id="waterEditAmountError"><i class="fa-solid fa-circle-exclamation"></i><span></span></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-control" id="waterEditNotes" placeholder="Optional notes…"></textarea>
+      </div>
+      <div class="fs-modal-footer">
+        <button type="button" class="btn btn-ghost" data-fs-modal-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Generic confirm fs-modal -->
+<div class="fs-modal-backdrop" id="confirmModal" aria-hidden="true">
+  <div class="fs-modal" style="max-width:400px;">
+    <div class="fs-modal-header"><span class="fs-modal-title confirm-title">Are you sure?</span></div>
+    <p class="text-secondary text-sm confirm-message"></p>
+    <div class="fs-modal-footer">
+      <button type="button" class="btn btn-ghost confirm-cancel-btn">Cancel</button>
+      <button type="button" class="btn btn-danger confirm-action-btn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== SCRIPTS ============== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/sync-manager.js"></script>
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/ui-kit.js"></script>
+<script src="assets/js/plant.js"></script>
+<script src="assets/js/pages/dashboard.js"></script>
+<script src="assets/js/pages/allowance.js"></script>
+<script src="assets/js/pages/expenses.js"></script>
+<script src="assets/js/pages/garden.js"></script>
+<script src="assets/js/pages/analytics.js"></script>
+<script src="assets/js/pages/activity.js"></script>
+<script src="assets/js/pages/settings.js"></script>
+<script src="assets/js/app.js"></script>
+
+<script>
+if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.protocol === 'https:')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
