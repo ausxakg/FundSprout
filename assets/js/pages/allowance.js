@@ -101,7 +101,7 @@ const AllowancePage = {
           <tbody>
             ${items.map((a) => `
               <tr>
-                <td><strong>${Utils.escapeHtml(a.source)}</strong>${a.planned ? ` <span class="chip badge-yellow" style="margin-left:6px;"><i class="fa-solid fa-clipboard-list"></i> Planned</span>` : ''}</td>
+                <td><strong>${Utils.escapeHtml(a.source)}</strong>${a.planned ? ` <span class="chip badge-yellow" style="margin-left:6px;"><i class="fa-solid fa-clipboard-list"></i> Spend Limit</span>` : ''}</td>
                 <td class="text-secondary">${Utils.escapeHtml(a.notes) || '—'}</td>
                 <td class="text-secondary">${Utils.formatDateTime(a.date, a.time)}</td>
                 <td><span class="activity-amount ${a.planned ? '' : 'pos'}">${Utils.formatMoney(a.amount)}</span></td>
@@ -182,10 +182,10 @@ const AllowancePage = {
 
     if (this.editingId) {
       DB.updateAllowance(this.editingId, payload);
-      Toast.success('Allowance updated', `${source} · ${Utils.formatMoney(payload.amount)}${planned ? ' · Planned only' : ''}`);
+      Toast.success('Allowance updated', `${source} · ${Utils.formatMoney(payload.amount)}${planned ? ' · Spend Limit only' : ''}`);
     } else {
       DB.addAllowance(payload);
-      Toast.success(planned ? 'Planned allowance saved' : 'Allowance added',
+      Toast.success(planned ? 'Spend Limit saved' : 'Allowance added',
         planned ? `${source} · ${Utils.formatMoney(payload.amount)} · not added to balance` : `${source} · ${Utils.formatMoney(payload.amount)}`);
     }
     ModalManager.close('allowanceModal');
@@ -197,12 +197,12 @@ const AllowancePage = {
     const ok = await confirmDialog({
       title: 'Delete this allowance?',
       message: a.planned
-        ? `This will remove this planned entry (${Utils.formatMoney(a.amount)} from ${a.source}). It never affected your balance. This can't be undone.`
+        ? `This will remove this Spend Limit entry (${Utils.formatMoney(a.amount)} from ${a.source}). It never affected your balance. This can't be undone.`
         : `This will remove ${Utils.formatMoney(a.amount)} from ${a.source} and update your balance. This can't be undone.`,
       confirmText: 'Delete'
     });
     if (!ok) return;
     DB.deleteAllowance(id);
-    Toast.success('Allowance deleted', a.planned ? 'This was a planned entry — your balance is unchanged.' : 'Your balance has been updated.');
+    Toast.success('Allowance deleted', a.planned ? 'This was a Spend Limit entry — your balance is unchanged.' : 'Your balance has been updated.');
   }
 };
