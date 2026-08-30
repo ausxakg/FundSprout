@@ -342,7 +342,7 @@ const SyncManager = {
       });
     });
 
-    (data.allowances || []).filter((a) => !a.planned).forEach((a) => queue.push(this._opFor('allowances', 'CREATE', a.id, a)));
+    (data.allowances || []).forEach((a) => queue.push(this._opFor('allowances', 'CREATE', a.id, tagNotesForSync(a))));
     (data.expenses || []).forEach((e) => queue.push(this._opFor('expenses', 'CREATE', e.id, e)));
     (data.plants || []).forEach((p) => queue.push(this._opFor('plants', 'CREATE', p.id, p)));
     queue.push(this._opFor('settings', 'UPDATE', 'settings', data.settings));
