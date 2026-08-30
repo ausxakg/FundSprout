@@ -93,7 +93,7 @@ const ActivityPage = {
       <div class="activity-item">
         <div class="activity-icon ${badges[t.kind]}"><i class="fa-solid ${icons[t.kind]}"></i></div>
         <div class="activity-main">
-          <div class="activity-title">${Utils.escapeHtml(t.title)}${t.planned ? ' <span class="chip badge-yellow" style="margin-left:4px;">Planned</span>' : ''}</div>
+          <div class="activity-title">${Utils.escapeHtml(t.title)}${t.planned ? ' <span class="chip badge-yellow" style="margin-left:4px;">Spend Limit</span>' : ''}</div>
           <div class="activity-sub">${Utils.formatDateTime(t.date, t.time)} · ${Utils.escapeHtml(t.category)}${t.notes ? ` · ${Utils.escapeHtml(t.notes)}` : ''}</div>
         </div>
         <div class="activity-amount ${t.planned ? '' : (isPos ? 'pos' : 'neg')}">${Utils.formatMoney(t.amount, { forceSign: true })}</div>
