@@ -471,9 +471,15 @@ const SyncManager = {
     } finally {
       this.isSyncing = false;
       this._renderStatus();
-      // If there's more queued than this batch covered, keep going shortly.
-      if (this._loadQueue().length > 0 && this.isOnline()) {
-        setTimeout(() => this.syncPendingChanges(), 2000);
+      // If there's more queued than this batch covered, keep going — but back
+      // off exponentially per retry so a failing endpoint isn't hammered every
+      // 2 seconds forever (that can itself cause Apps Script rate/concurrency
+      // errors, which then keeps the loop going indefinitely).
+      const remainingQueue = this._loadQueue();
+      if (remainingQueue.length > 0 && this.isOnline()) {
+        const maxRetry = remainingQueue.reduce((m, op) => Math.max(m, op.retryCount || 0), 0);
+        const backoffMs = maxRetry > 0 ? Math.min(2000 * Math.pow(2, maxRetry), 60000) : 2000;
+        setTimeout(() => this.syncPendingChanges(), backoffMs);
       } else if (this.isPaired() && this.isOnline()) {
         setTimeout(() => this.pullRemoteData(false), 600);
       }
