@@ -6,6 +6,28 @@
 
 const STORAGE_KEY = 'fundsprout.v1';
 
+// Your Google Sheet only has fixed columns (DeviceID, RecordID, Amount,
+// Source, Notes, Date, Time, CreatedAt, UpdatedAt) — there's no dedicated
+// "planned" column, so an unknown `planned` field sent to Apps Script is
+// silently dropped. Instead, a Track Only entry's planned status rides
+// inside the Notes column as a small marker prefix, so it survives a full
+// round trip through the sheet and back without ever needing a new column.
+const PLANNED_MARKER = '[TRACK-ONLY]';
+
+function tagNotesForSync(entry) {
+  if (!entry.planned) return entry;
+  const notes = entry.notes ? `${PLANNED_MARKER} ${entry.notes}` : PLANNED_MARKER;
+  return { ...entry, notes };
+}
+
+function untagNotesFromSync(row) {
+  const notes = String(row.notes || '');
+  if (notes.indexOf(PLANNED_MARKER) === 0) {
+    return { ...row, planned: true, notes: notes.slice(PLANNED_MARKER.length).trim() };
+  }
+  return { ...row, planned: !!row.planned };
+}
+
 const DEFAULT_CATEGORIES = ['Food', 'Transportation', 'School', 'Projects', 'Shopping', 'Entertainment', 'Health', 'Others'];
 
 const CATEGORY_ICONS = {
@@ -147,14 +169,15 @@ class StorageService {
     if (typeof SyncManager === 'undefined') return;
     try {
       switch (event) {
-        // Planned/tracking-only allowances are local-only and intentionally
-        // never queued for sync, so the connected sheet never sees them.
+        // Track-only (planned) allowances still sync like any other record so
+        // they mirror across paired devices — they're just always excluded
+        // from balance math (see _recalculateBalance), on every device.
         case 'allowance-added':
-          if (!payload.planned) SyncManager.queueOperation('allowances', 'CREATE', payload.id, payload); break;
+          SyncManager.queueOperation('allowances', 'CREATE', payload.id, tagNotesForSync(payload)); break;
         case 'allowance-updated':
-          if (!payload.planned) SyncManager.queueOperation('allowances', 'UPDATE', payload.id, payload); break;
+          SyncManager.queueOperation('allowances', 'UPDATE', payload.id, tagNotesForSync(payload)); break;
         case 'allowance-deleted':
-          if (!payload.planned) SyncManager.queueOperation('allowances', 'DELETE', payload.id, { id: payload.id }); break;
+          SyncManager.queueOperation('allowances', 'DELETE', payload.id, { id: payload.id }); break;
 
         case 'expense-added':
           SyncManager.queueOperation('expenses', 'CREATE', payload.id, payload); break;
@@ -468,7 +491,7 @@ class StorageService {
     this.data = {
       ...base,
       ...remoteData,
-      allowances: Array.isArray(remoteData.allowances) ? remoteData.allowances : [],
+      allowances: Array.isArray(remoteData.allowances) ? remoteData.allowances.map(untagNotesFromSync) : [],
       expenses: Array.isArray(remoteData.expenses) ? remoteData.expenses : [],
       plants: Array.isArray(remoteData.plants) ? remoteData.plants : [],
       settings: { ...base.settings, ...(remoteData.settings || {}) }
