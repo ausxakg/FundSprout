@@ -43,7 +43,12 @@ const Dashboard = {
 
     // Summary values
     const today = Utils.todayISO();
-    const todaysAllowance = d.allowances.filter((a) => !a.planned && a.date === today).reduce((s, a) => s + a.amount, 0);
+    // If a Spend Limit (Track Only) entry exists for today, it becomes
+    // "Today's Allowance" — the figure the user is planning against.
+    // Otherwise fall back to whatever real allowance was recorded.
+    const todaysSpendLimit = d.allowances.filter((a) => a.planned && a.date === today).reduce((s, a) => s + a.amount, 0);
+    const todaysRealAllowance = d.allowances.filter((a) => !a.planned && a.date === today).reduce((s, a) => s + a.amount, 0);
+    const todaysAllowance = todaysSpendLimit > 0 ? todaysSpendLimit : todaysRealAllowance;
     const todaysExpenses = d.expenses.filter((e) => e.date === today).reduce((s, e) => s + e.amount, 0);
     const totalSaved = d.plants.reduce((s, p) => s + p.saved, 0);
     const totalSavingsTarget = d.plants.reduce((s, p) => s + (Number(p.target) || 0), 0);
@@ -61,7 +66,7 @@ const Dashboard = {
     const budgetHintEl = document.getElementById('cardBudgetRemainingHint');
     if (budgetPctEl) budgetPctEl.textContent = todaysAllowance > 0 ? `${Math.round(budgetLeftPct)}% left` : 'No allowance yet';
     if (budgetFillEl) budgetFillEl.style.width = `${Math.round(budgetUsedPct)}%`;
-    if (budgetHintEl) budgetHintEl.textContent = todaysAllowance > 0 ? `${Utils.formatMoney(todaysExpenses)} spent from today's ${Utils.formatMoney(todaysAllowance)} allowance.` : "Add an allowance to start tracking today's budget.";
+    if (budgetHintEl) budgetHintEl.textContent = todaysAllowance > 0 ? `${Utils.formatMoney(todaysExpenses)} spent from today's ${Utils.formatMoney(todaysAllowance)} ${todaysSpendLimit > 0 ? 'spend limit' : 'allowance'}.` : "Add an allowance to start tracking today's budget.";
     document.getElementById('cardMoneySaved').textContent = Utils.formatMoney(totalSaved);
     const budgetTargetEl = document.getElementById('cardBudgetTarget');
     if (budgetTargetEl) budgetTargetEl.textContent = d.totalBudgetSet ? `Starting cash: ${Utils.formatMoney(startingCash)}` : 'No starting cash set';
@@ -109,7 +114,7 @@ const Dashboard = {
       <div class="activity-item">
         <div class="activity-icon ${badges[t.kind]}"><i class="fa-solid ${icons[t.kind]}"></i></div>
         <div class="activity-main">
-          <div class="activity-title">${Utils.escapeHtml(t.title)}${t.planned ? ' <span class="chip badge-yellow" style="margin-left:4px;">Planned</span>' : ''}</div>
+          <div class="activity-title">${Utils.escapeHtml(t.title)}${t.planned ? ' <span class="chip badge-yellow" style="margin-left:4px;">Spend Limit</span>' : ''}</div>
           <div class="activity-sub">${Utils.formatDateTime(t.date, t.time)} · ${Utils.escapeHtml(t.category)}</div>
         </div>
         <div class="activity-amount ${t.planned ? '' : (isPos ? 'pos' : 'neg')}">${Utils.formatMoney(t.amount, { forceSign: true })}</div>
